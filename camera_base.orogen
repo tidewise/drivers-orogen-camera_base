@@ -1,0 +1,133 @@
+name 'camera_base'
+
+using_library "frame_helper"
+using_library "opencv"
+import_types_from "base"
+import_types_from "frame_helper/FrameHelperTypes.h"
+import_types_from "camera_interface/CamTypes.h"
+
+task_context "Task" do
+    needs_configuration
+    
+    ###########################################################
+    ########################ports##############################
+    ###########################################################
+
+    output_port 'frame', ro_ptr('base::samples::frame::Frame')
+    output_port('frame_raw', ro_ptr('base::samples::frame::Frame')).
+        doc "unprocessed camera frame, disabled by default"
+
+    ###########################################################
+    ###################camera properties#######################
+    ###########################################################
+
+    property('camera_id', 'string','105984').
+    	doc 'unique camerea id'
+   
+    property('camera_format', 'base/samples/frame/frame_mode_t', :MODE_BAYER).
+    	doc 'output format of the camera --> not the output port! see below'
+
+    property('width', 'int',640).
+    	doc 'width of the camera frame'
+
+    property('height', 'int',480).
+    	doc 'height of the camera frame'
+
+    property('fps', 'int',10).
+    	doc 'frames per second'
+
+    property('frame_buffer_size', 'int',10).
+    	doc 'size of the frame buffer'
+
+    property('clear_buffer_if_frame_drop', 'bool',false).
+    	doc 'if the queue is empty because retrieve was called too rarely clear buffer'
+
+    property('disable_frame_raw',"bool",true).
+        doc('no data are written to frame_raw if set to true')
+
+    property('log_interval_in_sec', 'int',5).
+    	doc 'interval for logging a statistic about valid and invalid frames per second (0= logging of) -> it is saved as frame attrib StatFrameRate'
+
+    #########################################################
+    #################output properties#######################
+    #########################################################
+
+    property("undistort","bool",false).
+        doc 'true => undistort the image before it is writen to the output port'
+
+    property("calibration_parameters","frame_helper/CalibrationParameters").
+        doc 'parameter for undistort'
+
+    property("output_format", "/base/samples/frame/frame_mode_t", :MODE_UNDEFINED).
+       doc "The camera_format is converted into this format before it is written to the output port "
+           "Set it to MODE_UNDEFINED if you want to disable the conversion and the camera_format shall be used"
+
+    property("resize_algorithm","/frame_helper/ResizeAlgorithm",:INTER_LINEAR).
+        doc "resize algorithm which is used to scale the frame before it is written to the output port. "
+            "allowed values are INTER_LINEAR, INTER_NEAREST, INTER_AREA, INTER_CUBIC, INTER_LANCZOS4, BAYER_RESIZE"
+
+    property("scale_x", "double", 1).
+       doc "scale factor for the x direction which is used to scale the image before it is written to the output_port. "
+
+    property("scale_y", "double" ,1).
+       doc "scale factor for the y direction which is used to scale the image before it is written to the output_port. "
+
+    property("offset_x",   "int", 0).
+       doc "the offset to be used on the left margin in case of scaling"
+
+    property("offset_y",   "int", 0).
+       doc "the offset to be used on the left margin in case of scaling"
+
+    ###########################################################
+    ##########################states###########################
+    ###########################################################
+
+    error_states :NO_CAMERA,:CONFIGURE_ERROR, :CANNOT_START_GRABBING, :UNKOWN_PARAMETER, :UNSUPPORTED_PARAMETER,:PROCESSING_ERROR
+    fatal_states :NO_CAMERA_INTERFACE
+
+    ###########################################################
+    ###########methods to configure the camera#################
+    ###########################################################
+
+    operation('setDoubleAttrib').
+      returns('bool').
+      argument('type', '/camera/double_attrib/CamAttrib', 'type').
+      argument('value', 'double', 'value')
+    operation('setEnumAttrib').
+      returns('bool').
+      argument('type', '/camera/enum_attrib/CamAttrib', 'type')
+    operation('setIntAttrib').
+      returns('bool').
+      argument('type', '/camera/int_attrib/CamAttrib', 'type').
+      argument('value', 'int', 'value')
+    operation('setStringAttrib').
+      returns('bool').
+      argument('type', '/camera/str_attrib/CamAttrib', 'type').
+      argument('value', 'string', 'value')
+    operation('getDoubleAttrib').
+      returns('double').
+      argument('type', '/camera/double_attrib/CamAttrib', 'type')
+    operation('isEnumAttribSet').
+      returns('bool').
+      argument('type', '/camera/enum_attrib/CamAttrib', 'type')
+    operation('getIntAttrib').
+      returns('int').
+      argument('type', '/camera/int_attrib/CamAttrib', 'type')
+    operation('getStringAttrib').
+      returns('string').
+      argument('type', '/camera/str_attrib/CamAttrib', 'type')
+    operation('getIntRangeMin').
+      returns('int').
+      argument('type', '/camera/int_attrib/CamAttrib', 'type')
+    operation('getIntRangeMax').
+      returns('int').
+      argument('type', '/camera/int_attrib/CamAttrib', 'type')
+    operation('getDoubleRangeMin').
+      returns('double').
+      argument('type', '/camera/double_attrib/CamAttrib', 'type')
+    operation('getDoubleRangeMax').
+      returns('double').
+      argument('type', '/camera/double_attrib/CamAttrib', 'type')
+end
+
+
