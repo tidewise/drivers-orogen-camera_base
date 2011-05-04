@@ -3,6 +3,7 @@
 #include "Task.hpp"
 
 using namespace camera_base;
+using namespace camera;
 using namespace base::samples::frame;
 
 Task::Task(std::string const& name)
@@ -66,11 +67,8 @@ bool Task::startHook()
     //configure and start camera
     try 
     {
-        RTT::log(RTT::Info) << "configure camera" << RTT::endlog(); 
-
-        //this function must be defined in the derived class
-        //to configure the camera
-        setCameraSettings();
+        RTT::log(RTT::Info) << "configure camera:" << RTT::endlog(); 
+        configureCamera();
 
         //check if the camera is initialized
         if(cam_interface == NULL)
@@ -174,6 +172,245 @@ void Task::cleanupHook()
         delete cam_interface;
         cam_interface = NULL;
     }
+}
+
+void Task::configureCamera()
+{
+    //sets binning to 1 otherwise high resolution can not be set
+    if(cam_interface->isAttribAvail(int_attrib::BinningX))
+    {
+        cam_interface->setAttrib(int_attrib::BinningX,1);
+        cam_interface->setAttrib(int_attrib::BinningY,1);
+    }
+    else
+        RTT::log(RTT::Info) << "Binning is not supported by the camera" << RTT::endlog();
+
+    //setting resolution and color mode
+    try
+    {
+        cam_interface->setFrameSettings(*camera_frame);
+    }
+    catch(std::runtime_error e)
+    {
+        RTT::log(RTT::Error) << "failed to configure camera: " << e.what() << RTT::endlog();
+        error(CONFIGURE_ERROR);
+        return;
+    }
+
+    //setting FrameRate
+    if(cam_interface->isAttribAvail(double_attrib::FrameRate))
+        cam_interface->setAttrib(camera::double_attrib::FrameRate,_fps);
+    else
+        RTT::log(RTT::Info) << "FrameRate is not supported by the camera" << RTT::endlog();
+
+    //setting Region
+    if(cam_interface->isAttribAvail(int_attrib::RegionX))
+    {
+        cam_interface->setAttrib(camera::int_attrib::RegionX,_region_x);
+        cam_interface->setAttrib(camera::int_attrib::RegionY,_region_y);
+    }
+    else
+        RTT::log(RTT::Info) << "Region is not supported by the camera" << RTT::endlog();
+
+    //setting Binning
+    if(cam_interface->isAttribAvail(int_attrib::BinningX))
+    {
+        cam_interface->setAttrib(camera::int_attrib::BinningX,_binning_x);
+        cam_interface->setAttrib(camera::int_attrib::BinningY,_binning_y);
+    }
+
+    //setting ExposureValue
+    if(cam_interface->isAttribAvail(int_attrib::ExposureValue))
+        cam_interface->setAttrib(camera::int_attrib::ExposureValue,_exposure);
+    else
+        RTT::log(RTT::Info) << "ExposureValue is not supported by the camera" << RTT::endlog();
+
+   
+    //setting GainValue
+    if(cam_interface->isAttribAvail(int_attrib::GainValue))
+        cam_interface->setAttrib(camera::int_attrib::GainValue,_gain);
+    else
+        RTT::log(RTT::Info) << "GainValue is not supported by the camera" << RTT::endlog();
+
+    //setting WhitebalValueBlue
+    if(cam_interface->isAttribAvail(int_attrib::WhitebalValueBlue))
+        cam_interface->setAttrib(camera::int_attrib::WhitebalValueBlue,_whitebalance_blue);
+    else
+        RTT::log(RTT::Info) << "WhitebalValueBlue is not supported by the camera" << RTT::endlog();
+
+    //setting WhitebalValueRed
+    if(cam_interface->isAttribAvail(int_attrib::WhitebalValueRed))
+        cam_interface->setAttrib(camera::int_attrib::WhitebalValueRed,_whitebalance_red);
+    else
+        RTT::log(RTT::Info) << "WhitebalValueRed is not supported by the camera" << RTT::endlog();
+
+    //setting WhitebalAutoRate
+    if(cam_interface->isAttribAvail(int_attrib::WhitebalAutoRate))
+        cam_interface->setAttrib(camera::int_attrib::WhitebalAutoRate,_whitebalance_auto_rate);
+    else
+        RTT::log(RTT::Info) << "WhitebalAutoRate is not supported by the camera" << RTT::endlog();
+
+    //setting WhitebalAutoAdjustTol
+    if(cam_interface->isAttribAvail(int_attrib::WhitebalAutoAdjustTol))
+        cam_interface->setAttrib(camera::int_attrib::WhitebalAutoAdjustTol,_whitebalance_auto_threshold);
+    else
+        RTT::log(RTT::Info) << "WhitebalAutoAdjustTol is not supported by the camera" << RTT::endlog();
+
+    //setting _whitebalance_mode
+    if(_whitebalance_mode.value() == "manual")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::WhitebalModeToManual))
+            cam_interface->setAttrib(camera::enum_attrib::WhitebalModeToManual);
+        else
+            RTT::log(RTT::Info) << "WhitebalModeToManual is not supported by the camera" << RTT::endlog();
+    }
+    else if (_whitebalance_mode.value() == "auto")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::WhitebalModeToAuto))
+            cam_interface->setAttrib(camera::enum_attrib::WhitebalModeToAuto);
+        else
+            RTT::log(RTT::Info) << "WhitebalModeToAuto is not supported by the camera" << RTT::endlog();
+    }
+    else if (_whitebalance_mode.value() == "auto_once")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::WhitebalModeToAutoOnce))
+            cam_interface->setAttrib(camera::enum_attrib::WhitebalModeToAutoOnce);
+        else
+            RTT::log(RTT::Info) << "WhitebalModeToAutoOnce is not supported by the camera" << RTT::endlog();
+    }
+    else if(_whitebalance_mode.value() == "none")
+    {
+        //do nothing
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "Whitebalance mode "+ _whitebalance_mode.value() + " is not supported!" << RTT::endlog();
+        error(UNKOWN_PARAMETER);
+        return;
+    }
+
+    //setting _exposure_mode
+    if(_exposure_mode.value() == "auto")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::ExposureModeToAuto))
+            cam_interface->setAttrib(camera::enum_attrib::ExposureModeToAuto);
+        else
+            RTT::log(RTT::Info) << "ExposureModeToAuto is not supported by the camera" << RTT::endlog();
+    }
+    else if(_exposure_mode.value() =="manual")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::ExposureModeToManual))
+            cam_interface->setAttrib(camera::enum_attrib::ExposureModeToManual);
+        else
+            RTT::log(RTT::Info) << "ExposureModeToManual is not supported by the camera" << RTT::endlog();
+    }
+    else if (_exposure_mode.value() =="external")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::ExposureModeToExternal))
+            cam_interface->setAttrib(camera::enum_attrib::ExposureModeToExternal);
+        else
+            RTT::log(RTT::Info) << "ExposureModeToExternal is not supported by the camera" << RTT::endlog();
+    }
+    else if(_exposure_mode.value() == "none")
+    {
+        //do nothing
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "Exposure mode "+ _exposure_mode.value() + " is not supported!" << RTT::endlog();
+        error(UNKOWN_PARAMETER);
+        return;
+    }
+
+    //setting _trigger_mode
+    if(_trigger_mode.value() == "freerun")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::FrameStartTriggerModeToFreerun))
+            cam_interface->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFreerun);
+        else
+            RTT::log(RTT::Info) << "FrameStartTriggerModeToFreerun is not supported by the camera" << RTT::endlog();
+    }
+    else if (_trigger_mode.value() == "fixed")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::FrameStartTriggerModeToFixedRate))
+            cam_interface->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFixedRate);
+        else
+            RTT::log(RTT::Info) << "FrameStartTriggerModeToFixedRate is not supported by the camera" << RTT::endlog();
+    }
+    else if (_trigger_mode.value() == "sync_in1")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::FrameStartTriggerModeToSyncIn1))
+            cam_interface->setAttrib(camera::enum_attrib::FrameStartTriggerModeToSyncIn1);
+        else
+            RTT::log(RTT::Info) << "FrameStartTriggerModeToSyncIn1 is not supported by the camera" << RTT::endlog();
+    }
+    else if(_trigger_mode.value() == "none")
+    {
+        //do nothing
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "Trigger mode "+ _trigger_mode.value() + " is not supported!" + " is not supported!" << RTT::endlog();
+        error(UNKOWN_PARAMETER);
+        return;
+    }
+
+    //setting _frame_start_trigger_event
+    if(_frame_start_trigger_event.value() == "EdgeRising")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::FrameStartTriggerEventToEdgeRising))
+            cam_interface->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeRising);
+        else
+            RTT::log(RTT::Info) << "FrameStartTriggerEventToEdgeRising is not supported by the camera" << RTT::endlog();
+    }
+    else if (_frame_start_trigger_event.value() == "EdgeFalling")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::FrameStartTriggerEventToEdgeFalling))
+            cam_interface->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeFalling);
+        else
+            RTT::log(RTT::Info) << "FrameStartTriggerEventToEdgeFalling is not supported by the camera" << RTT::endlog();
+    }
+    else if (_frame_start_trigger_event.value() == "EdgeAny")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::FrameStartTriggerEventToEdgeAny))
+            cam_interface->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeAny);
+        else
+            RTT::log(RTT::Info) << "FrameStartTriggerEventToEdgeAny is not supported by the camera" << RTT::endlog();
+    }
+    else if (_frame_start_trigger_event.value() == "LevelHigh")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::FrameStartTriggerEventToLevelHigh))
+            cam_interface->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelHigh);
+        else
+            RTT::log(RTT::Info) << "FrameStartTriggerEventToLevelHigh is not supported by the camera" << RTT::endlog();
+    }
+    else if (_frame_start_trigger_event.value() == "LevelLow")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::FrameStartTriggerEventToLevelLow))
+            cam_interface->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelLow);
+        else
+            RTT::log(RTT::Info) << "FrameStartTriggerEventToLevelLow is not supported by the camera" << RTT::endlog();
+    }
+    else if(_frame_start_trigger_event.value() == "none")
+    {
+        //do nothing
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "Frame start trigger event "+ _frame_start_trigger_event.value() + " is not supported!" << RTT::endlog();
+        error(UNKOWN_PARAMETER);
+        return;
+    }
+
+    RTT::log(RTT::Info) << "camera configuration: width="<<_width <<
+        "; height=" << _height << 
+        "; region_x=" << _region_x << 
+        "; region_y=" << _region_y << 
+        "; Trigger mode=" << _trigger_mode << 
+        "; fps=" << _fps << 
+        "; exposure=" << _exposure << 
+        "; Whitebalance mode=" << _whitebalance_mode << 
+        RTT::endlog();
 }
 
 void Task::setExtraAttributes(Frame *frame_ptr)

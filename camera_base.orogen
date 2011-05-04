@@ -23,30 +23,59 @@ task_context "Task" do
 
     property('camera_id', 'string','105984').
     	doc 'unique camerea id'
-   
     property('camera_format', 'base/samples/frame/frame_mode_t', :MODE_BAYER).
     	doc 'output format of the camera --> not the output port! see below'
-
     property('width', 'int',640).
     	doc 'width of the camera frame'
-
     property('height', 'int',480).
     	doc 'height of the camera frame'
-
     property('fps', 'int',10).
     	doc 'frames per second'
-
     property('frame_buffer_size', 'int',10).
     	doc 'size of the frame buffer'
-
     property('clear_buffer_if_frame_drop', 'bool',false).
     	doc 'if the queue is empty because retrieve was called too rarely clear buffer'
-
     property('disable_frame_raw',"bool",true).
         doc('no data are written to frame_raw if set to true')
-
     property('log_interval_in_sec', 'int',5).
     	doc 'interval for logging a statistic about valid and invalid frames per second (0= logging of) -> it is saved as frame attrib StatFrameRate'
+
+    property('region_x', 'int',0).
+    	doc 'start of region readout, in pixels; left edge.'
+    property('region_y', 'int',0).
+    	doc 'start of region readout, in pixels; top edge.'
+    property('trigger_mode', 'string','fixed').
+    	doc 'trigger mode of the camera, allowed values: freerun, fixed, sync_in1, none'
+    property('exposure', 'int',5000).
+    	doc 'exposure value if exposure mode is not auto'
+    property('exposure_mode', 'string','auto').
+    	doc 'exposure mode (auto, manual, external, none)'
+    property('gain_mode_auto', 'bool',true).
+    	doc 'gain mode'
+    property('gain', 'int',0).
+    	doc 'gain value'
+    property('binning_x', 'int',1).
+    	doc 'horizontal binning. 1=no binning.'
+    property('binning_y', 'int',1).
+    	doc 'vertical binning. 1=no binning.'
+    property('mode', 'string','Master').
+    	doc 'opening mode (Master, Monitor, MasterMulticast)'
+    property('synchronize_time_interval', 'int',0).
+    	doc 'time interval in micro seconds which is used to synchronize camera time with system time. 0 == no synchronization'
+    property('whitebalance_mode', 'string','auto').
+    	doc 'whitebalance mode (auto, manual, auto_once, none)'
+    property('whitebalance_blue', 'int',100).
+    	doc 'Blue gain expressed as a percentage of the camera default setting.'
+    property('whitebalance_red', 'int',100).
+    	doc 'Red gain expressed as a percentage of the camera default setting.'
+    property('whitebalance_auto_rate', 'int',100).
+    	doc 'How fast the Auto white balance will update.'
+    property('whitebalance_auto_threshold', 'int',5).
+    	doc 'Sets a range of scene color changes in which the automatic whitebalance will not respond.'
+    property('frame_start_trigger_event', 'string','none').
+    	doc 'External trigger event, allowed values:  EdgeRising, EdgeFalling, EdgeAny, LevelHigh, LevelLow, none'
+    property('package_size', 'int',0).
+    	doc 'In Bytes. Size of image data packet. This size includes the GVSP, UDP, and IP headers. (0 == max possible)'
 
     #########################################################
     #################output properties#######################

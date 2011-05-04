@@ -77,7 +77,7 @@ namespace camera_base {
 
         //you have to implement this function for each camera
         //the function is called before the camera is started
-        virtual void setCameraSettings()=0;
+        virtual void configureCamera();
 
         //if you wish to add extended attributes to the frame
         //implement this function in your derived class
