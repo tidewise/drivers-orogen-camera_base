@@ -7,7 +7,7 @@
   <logo>http://</logo>
   <depend package="drivers/camera_interface"/>
   <depend package="image_processing/frame_helper"/>
-  <depend package="base/types"/>
+  <depend package="base/orogen/types"/>
   <versioncontrol type="git" url="" />
   <export>
     <cpp cflags="" lflags="" />
