@@ -14,17 +14,6 @@ Task::Task(std::string const& name)
 
 }
 
-Task::Task(std::string const& name, RTT::ExecutionEngine* engine) : 
-	TaskBase(name, engine)
-	,cam_interface(NULL)
-	,process_image(false)
-	,stat_frame_rate(0)
-	,stat_invalid_frame_rate(0)
-	,stat_valid_frame_rate(0)
-{
-
-}
-
 Task::~Task()
 {
     if(cam_interface)

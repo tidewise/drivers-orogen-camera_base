@@ -72,7 +72,6 @@ namespace camera_base {
 
     public:
         Task(std::string const& name = "camera::Task");
-        Task(std::string const& name, RTT::ExecutionEngine* engine);
 
 	~Task();
 
