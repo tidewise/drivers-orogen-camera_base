@@ -3,6 +3,7 @@ name 'camera_base'
 using_library "frame_helper"
 using_library "opencv"
 import_types_from "base"
+import_types_from "frame_helper/Calibration.h"
 import_types_from "frame_helper/FrameHelperTypes.h"
 import_types_from "camera_interface/CamTypes.h"
 
@@ -84,7 +85,7 @@ task_context "Task" do
     property("undistort","bool",false).
         doc 'true => undistort the image before it is writen to the output port'
 
-    property("calibration_parameters","frame_helper/CalibrationParameters").
+    property("calibration_parameters","frame_helper/CameraCalibration").
         doc 'parameter for undistort'
 
     property("output_format", "/base/samples/frame/frame_mode_t", :MODE_UNDEFINED).
