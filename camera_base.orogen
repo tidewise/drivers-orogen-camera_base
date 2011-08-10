@@ -32,6 +32,8 @@ task_context "Task" do
     	doc 'height of the camera frame'
     property('fps', 'int',10).
     	doc 'frames per second'
+    property('grab_mode', 'camera/GrabMode', :Continuously).
+    	doc 'grab mode (Stop, SingleFrame, MultiFrame, Continuously)'
     property('frame_buffer_size', 'int',10).
     	doc 'size of the frame buffer'
     property('clear_buffer_if_frame_drop', 'bool',false).

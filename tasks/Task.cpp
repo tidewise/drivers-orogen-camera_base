@@ -90,7 +90,8 @@ bool Task::startHook()
         }
 
         RTT::log(RTT::Info) << cam_interface->doDiagnose() << RTT::endlog();
-        cam_interface->grab(camera::Continuously,_frame_buffer_size); 
+
+        cam_interface->grab(_grab_mode,_frame_buffer_size); 
     }
     catch(std::runtime_error e)
     {
