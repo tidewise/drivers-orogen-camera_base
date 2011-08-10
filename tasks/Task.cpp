@@ -125,6 +125,8 @@ void Task::updateHook()
             //set extra attributes 
             setExtraAttributes(frame_ptr);
             camera_frame.reset(frame_ptr);
+            //callback on frame retrieve
+            onRetrieveNewFrame(*frame_ptr);
 
             //check if we have to process the frame before writing it to the port
             if(process_image)
@@ -618,4 +620,9 @@ double Task::getDoubleRangeMax(camera::double_attrib::CamAttrib const & type)
         return -1;
     }
     return -1;
+}
+
+void Task::onRetrieveNewFrame(base::samples::frame::Frame& frame)
+{
+
 }

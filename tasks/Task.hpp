@@ -50,6 +50,9 @@ namespace camera_base {
         /* Handler for the setStringAttrib operation
          */
         virtual bool setStringAttrib(::camera::str_attrib::CamAttrib const & type, ::std::string const & value);
+        /* Callback operation on retrieving a new frame
+         */
+        virtual void onRetrieveNewFrame(base::samples::frame::Frame & frame);
 
     protected:
 
