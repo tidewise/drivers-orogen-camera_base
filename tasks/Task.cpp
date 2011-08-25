@@ -269,7 +269,30 @@ void Task::configureCamera()
         cam_interface->setAttrib(camera::int_attrib::WhitebalAutoAdjustTol,_whitebalance_auto_threshold);
     else
         RTT::log(RTT::Info) << "WhitebalAutoAdjustTol is not supported by the camera" << RTT::endlog();
+    
+    //setting AcquisitionFrameCount
+    if(cam_interface->isAttribAvail(int_attrib::AcquisitionFrameCount))
+      cam_interface->setAttrib(int_attrib::AcquisitionFrameCount, _acquisition_frame_count);
+    else
+      RTT::log(RTT::Info) << "AcquisitionFrameCount is not supported by the camera" << RTT::endlog();
 
+    //setting gamma mode
+    if(_gamma.get())
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::GammaToOn))
+            cam_interface->setAttrib(enum_attrib::GammaToOn);
+        else
+            RTT::log(RTT::Info) << "GammaToOn is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::GammaToOff))
+            cam_interface->setAttrib(enum_attrib::GammaToOff);
+        else
+            RTT::log(RTT::Info) << "GammaToOff is not supported by the camera" << RTT::endlog();
+      
+    }
+    
     //setting _whitebalance_mode
     if(_whitebalance_mode.value() == "manual")
     {
