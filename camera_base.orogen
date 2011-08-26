@@ -79,6 +79,10 @@ task_context "Task" do
     	doc 'External trigger event, allowed values:  EdgeRising, EdgeFalling, EdgeAny, LevelHigh, LevelLow, none'
     property('package_size', 'int',0).
     	doc 'In Bytes. Size of image data packet. This size includes the GVSP, UDP, and IP headers. (0 == max possible)'
+    property('sync_out1_mode','string', 'FrameTrigger').
+    	doc 'sync out1 mode (GPO, AcquisitionTriggerReady, FrameTriggerReady, FrameTrigger, Exposing, FrameReadout, Acquiring, SyncIn1, SyncIn2, Strobe1)'
+    property('sync_out2_mode','string', 'FrameTrigger').
+    	doc 'sync out2 mode (GPO, AcquisitionTriggerReady, FrameTriggerReady, FrameTrigger, Exposing, FrameReadout, Acquiring, SyncIn1, SyncIn2, Strobe1)'
 
     #########################################################
     #################output properties#######################
