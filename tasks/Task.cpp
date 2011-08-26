@@ -1,6 +1,7 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "Task.hpp"
+#include <rtt/extras/FileDescriptorActivity.hpp>
 
 using namespace camera_base;
 using namespace camera;
@@ -99,6 +100,25 @@ bool Task::startHook()
         error(CANNOT_START_GRABBING);
         return false;
     }
+    
+    // add file descriptor if task is fd driven
+    RTT::extras::FileDescriptorActivity* fd_activity =
+        getActivity<RTT::extras::FileDescriptorActivity>();
+    if (fd_activity)
+    {
+        try 
+        {
+            RTT::log(RTT::Info) << "using FD activity !" << RTT::endlog();
+            RTT::log(RTT::Info) << "  FD=" << cam_interface->getFileDescriptor() << RTT::endlog();
+            fd_activity->watch(cam_interface->getFileDescriptor());
+        }
+        catch(std::runtime_error e)
+        {
+            RTT::log(RTT::Error) << "failed to get file descriptor: " << e.what() << RTT::endlog();
+            error(CONFIGURE_ERROR);
+            return false;
+        }
+    }
     return true;
 }
 
@@ -172,6 +192,15 @@ void Task::updateHook()
 void Task::stopHook()
 {
     TaskBase::stopHook();
+    // remove file descriptor if task is fd driven
+    RTT::extras::FileDescriptorActivity* fd_activity =
+        getActivity<RTT::extras::FileDescriptorActivity>();
+    if (fd_activity)
+    {
+        RTT::log(RTT::Info) << "clear FD watches" << RTT::endlog();
+        fd_activity->clearAllWatches();
+    }
+    
     RTT::log(RTT::Info) << "stop grabbing" << RTT::endlog();
     cam_interface->grab(camera::Stop);
     sleep(1);
@@ -269,7 +298,30 @@ void Task::configureCamera()
         cam_interface->setAttrib(camera::int_attrib::WhitebalAutoAdjustTol,_whitebalance_auto_threshold);
     else
         RTT::log(RTT::Info) << "WhitebalAutoAdjustTol is not supported by the camera" << RTT::endlog();
+    
+    //setting AcquisitionFrameCount
+    if(cam_interface->isAttribAvail(int_attrib::AcquisitionFrameCount))
+      cam_interface->setAttrib(int_attrib::AcquisitionFrameCount, _acquisition_frame_count);
+    else
+      RTT::log(RTT::Info) << "AcquisitionFrameCount is not supported by the camera" << RTT::endlog();
 
+    //setting gamma mode
+    if(_gamma.get())
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::GammaToOn))
+            cam_interface->setAttrib(enum_attrib::GammaToOn);
+        else
+            RTT::log(RTT::Info) << "GammaToOn is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::GammaToOff))
+            cam_interface->setAttrib(enum_attrib::GammaToOff);
+        else
+            RTT::log(RTT::Info) << "GammaToOff is not supported by the camera" << RTT::endlog();
+      
+    }
+    
     //setting _whitebalance_mode
     if(_whitebalance_mode.value() == "manual")
     {

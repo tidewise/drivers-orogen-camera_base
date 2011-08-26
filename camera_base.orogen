@@ -57,6 +57,10 @@ task_context "Task" do
     	doc 'gain mode'
     property('gain', 'int',0).
     	doc 'gain value'
+    property('gamma', 'bool',true).
+        doc 'turns gamma on or off'
+    property('acquisition_frame_count', 'int', 200).
+        doc 'count of frames if grab mode is MultiFrame'
     property('binning_x', 'int',1).
     	doc 'horizontal binning. 1=no binning.'
     property('binning_y', 'int',1).
