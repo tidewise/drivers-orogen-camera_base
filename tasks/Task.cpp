@@ -68,11 +68,11 @@ bool Task::startHook()
         process_image = false;
 
     //initialize camera frame
-    Frame* frame = new Frame(_width,_height,8,_camera_format.value()); 
+    Frame* frame = new Frame(_width,_height,_channel_data_depth,_camera_format.value()); 
     camera_frame.reset(frame);
 
     //initialize output frame
-    frame = new Frame(_width*_scale_x,_height*_scale_y,8,output_frame_mode); 
+    frame = new Frame(_width*_scale_x,_height*_scale_y,_channel_data_depth,output_frame_mode); 
     output_frame.reset(frame);	
     frame = NULL;
 

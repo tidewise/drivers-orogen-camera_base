@@ -49,6 +49,8 @@ task_context "Task" do
     	doc 'start of region readout, in pixels; top edge.'
     property('trigger_mode', 'string','fixed').
     	doc 'trigger mode of the camera, allowed values: freerun, fixed, sync_in1, none'
+    property('channel_data_depth', 'int',8).
+        doc 'bit depth per channel'
     property('exposure', 'int',5000).
     	doc 'exposure value if exposure mode is not auto'
     property('exposure_mode', 'string','auto').
