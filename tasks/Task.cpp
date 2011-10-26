@@ -1,6 +1,7 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "Task.hpp"
+#include <rtt/extras/FileDescriptorActivity.hpp>
 
 using namespace camera_base;
 using namespace camera;
@@ -67,11 +68,11 @@ bool Task::startHook()
         process_image = false;
 
     //initialize camera frame
-    Frame* frame = new Frame(_width,_height,8,_camera_format.value()); 
+    Frame* frame = new Frame(_width,_height,_channel_data_depth,_camera_format.value()); 
     camera_frame.reset(frame);
 
     //initialize output frame
-    frame = new Frame(_width*_scale_x,_height*_scale_y,8,output_frame_mode); 
+    frame = new Frame(_width*_scale_x,_height*_scale_y,_channel_data_depth,output_frame_mode); 
     output_frame.reset(frame);	
     frame = NULL;
 
@@ -90,13 +91,33 @@ bool Task::startHook()
         }
 
         RTT::log(RTT::Info) << cam_interface->doDiagnose() << RTT::endlog();
-        cam_interface->grab(camera::Continuously,_frame_buffer_size); 
+
+        cam_interface->grab(_grab_mode,_frame_buffer_size); 
     }
     catch(std::runtime_error e)
     {
         RTT::log(RTT::Error) << "failed to start camera: " << e.what() << RTT::endlog();
         error(CANNOT_START_GRABBING);
         return false;
+    }
+    
+    // add file descriptor if task is fd driven
+    RTT::extras::FileDescriptorActivity* fd_activity =
+        getActivity<RTT::extras::FileDescriptorActivity>();
+    if (fd_activity)
+    {
+        try 
+        {
+            RTT::log(RTT::Info) << "using FD activity !" << RTT::endlog();
+            RTT::log(RTT::Info) << "  FD=" << cam_interface->getFileDescriptor() << RTT::endlog();
+            fd_activity->watch(cam_interface->getFileDescriptor());
+        }
+        catch(std::runtime_error e)
+        {
+            RTT::log(RTT::Error) << "failed to get file descriptor: " << e.what() << RTT::endlog();
+            error(CONFIGURE_ERROR);
+            return false;
+        }
     }
     return true;
 }
@@ -125,6 +146,8 @@ void Task::updateHook()
             //set extra attributes 
             setExtraAttributes(frame_ptr);
             camera_frame.reset(frame_ptr);
+            //callback on frame retrieve
+            onRetrieveNewFrame(*frame_ptr);
 
             //check if we have to process the frame before writing it to the port
             if(process_image)
@@ -169,6 +192,15 @@ void Task::updateHook()
 void Task::stopHook()
 {
     TaskBase::stopHook();
+    // remove file descriptor if task is fd driven
+    RTT::extras::FileDescriptorActivity* fd_activity =
+        getActivity<RTT::extras::FileDescriptorActivity>();
+    if (fd_activity)
+    {
+        RTT::log(RTT::Info) << "clear FD watches" << RTT::endlog();
+        fd_activity->clearAllWatches();
+    }
+    
     RTT::log(RTT::Info) << "stop grabbing" << RTT::endlog();
     cam_interface->grab(camera::Stop);
     sleep(1);
@@ -266,7 +298,30 @@ void Task::configureCamera()
         cam_interface->setAttrib(camera::int_attrib::WhitebalAutoAdjustTol,_whitebalance_auto_threshold);
     else
         RTT::log(RTT::Info) << "WhitebalAutoAdjustTol is not supported by the camera" << RTT::endlog();
+    
+    //setting AcquisitionFrameCount
+    if(cam_interface->isAttribAvail(int_attrib::AcquisitionFrameCount))
+      cam_interface->setAttrib(int_attrib::AcquisitionFrameCount, _acquisition_frame_count);
+    else
+      RTT::log(RTT::Info) << "AcquisitionFrameCount is not supported by the camera" << RTT::endlog();
 
+    //setting gamma mode
+    if(_gamma.get())
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::GammaToOn))
+            cam_interface->setAttrib(enum_attrib::GammaToOn);
+        else
+            RTT::log(RTT::Info) << "GammaToOn is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::GammaToOff))
+            cam_interface->setAttrib(enum_attrib::GammaToOff);
+        else
+            RTT::log(RTT::Info) << "GammaToOff is not supported by the camera" << RTT::endlog();
+      
+    }
+    
     //setting _whitebalance_mode
     if(_whitebalance_mode.value() == "manual")
     {
@@ -412,6 +467,163 @@ void Task::configureCamera()
         error(UNKOWN_PARAMETER);
         return;
     }
+
+    //setting _sync_out1_mode
+    if(_sync_out1_mode.value() == "GPO")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut1ModeToGPO))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut1ModeToGPO);
+        else
+            RTT::log(RTT::Info) << "SyncOut1ModeToGPO is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out1_mode.value() == "AcquisitionTriggerReady")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut1ModeToAcquisitionTriggerReady))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut1ModeToAcquisitionTriggerReady);
+        else
+            RTT::log(RTT::Info) << "SyncOut1ModeToAcquisitionTriggerReady is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out1_mode.value() == "FrameTriggerReady")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut1ModeToFrameTriggerReady))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut1ModeToFrameTriggerReady);
+        else
+            RTT::log(RTT::Info) << "SyncOut1ModeToFrameTriggerReady is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out1_mode.value() == "FrameTrigger")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut1ModeToFrameTrigger))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut1ModeToFrameTrigger);
+        else
+            RTT::log(RTT::Info) << "SyncOut1ModeToFrameTrigger is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out1_mode.value() == "Exposing")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut1ModeToExposing))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut1ModeToExposing);
+        else
+            RTT::log(RTT::Info) << "SyncOut1ModeToExposing is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out1_mode.value() == "FrameReadout")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut1ModeToFrameReadout))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut1ModeToFrameReadout);
+        else
+            RTT::log(RTT::Info) << "SyncOut1ModeToFrameReadout is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out1_mode.value() == "Acquiring")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut1ModeToAcquiring))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut1ModeToAcquiring);
+        else
+            RTT::log(RTT::Info) << "SyncOut1ModeToAcquiring is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out1_mode.value() == "SyncIn1")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut1ModeToSyncIn1))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut1ModeToSyncIn1);
+        else
+            RTT::log(RTT::Info) << "SyncOut1ModeToSyncIn1 is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out1_mode.value() == "SyncIn2")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut1ModeToSyncIn2))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut1ModeToSyncIn2);
+        else
+            RTT::log(RTT::Info) << "SyncOut1ModeToSyncIn2 is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out1_mode.value() == "Strobe1")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut1ModeToStrobe1))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut1ModeToStrobe1);
+        else
+            RTT::log(RTT::Info) << "SyncOut1ModeToStrobe1 is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "SyncOut1Mode "+ _frame_start_trigger_event.value() + " is not supported!" << RTT::endlog();
+        error(UNKOWN_PARAMETER);
+        return;
+    }
+
+    //setting _sync_out2_mode
+    if(_sync_out2_mode.value() == "GPO")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut2ModeToGPO))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut2ModeToGPO);
+        else
+            RTT::log(RTT::Info) << "SyncOut2ModeToGPO is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out2_mode.value() == "AcquisitionTriggerReady")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut2ModeToAcquisitionTriggerReady))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut2ModeToAcquisitionTriggerReady);
+        else
+            RTT::log(RTT::Info) << "SyncOut2ModeToAcquisitionTriggerReady is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out2_mode.value() == "FrameTriggerReady")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut2ModeToFrameTriggerReady))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut2ModeToFrameTriggerReady);
+        else
+            RTT::log(RTT::Info) << "SyncOut2ModeToFrameTriggerReady is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out2_mode.value() == "FrameTrigger")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut2ModeToFrameTrigger))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut2ModeToFrameTrigger);
+        else
+            RTT::log(RTT::Info) << "SyncOut2ModeToFrameTrigger is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out2_mode.value() == "Exposing")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut2ModeToExposing))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut2ModeToExposing);
+        else
+            RTT::log(RTT::Info) << "SyncOut2ModeToExposing is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out2_mode.value() == "FrameReadout")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut2ModeToFrameReadout))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut2ModeToFrameReadout);
+        else
+            RTT::log(RTT::Info) << "SyncOut2ModeToFrameReadout is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out2_mode.value() == "Acquiring")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut2ModeToAcquiring))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut2ModeToAcquiring);
+        else
+            RTT::log(RTT::Info) << "SyncOut2ModeToAcquiring is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out2_mode.value() == "SyncIn1")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut2ModeToSyncIn1))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut2ModeToSyncIn1);
+        else
+            RTT::log(RTT::Info) << "SyncOut2ModeToSyncIn1 is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out2_mode.value() == "SyncIn2")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut2ModeToSyncIn2))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut2ModeToSyncIn2);
+        else
+            RTT::log(RTT::Info) << "SyncOut2ModeToSyncIn2 is not supported by the camera" << RTT::endlog();
+    }
+    else if (_sync_out2_mode.value() == "Strobe1")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SyncOut2ModeToStrobe1))
+            cam_interface->setAttrib(camera::enum_attrib::SyncOut2ModeToStrobe1);
+        else
+            RTT::log(RTT::Info) << "SyncOut2ModeToStrobe1 is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "SyncOut2Mode "+ _frame_start_trigger_event.value() + " is not supported!" << RTT::endlog();
+        error(UNKOWN_PARAMETER);
+        return;
+    }
+
 
     RTT::log(RTT::Info) << "camera configuration: width="<<_width <<
         "; height=" << _height << 
@@ -618,4 +830,9 @@ double Task::getDoubleRangeMax(camera::double_attrib::CamAttrib const & type)
         return -1;
     }
     return -1;
+}
+
+void Task::onRetrieveNewFrame(base::samples::frame::Frame& frame)
+{
+
 }

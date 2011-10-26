@@ -3,6 +3,7 @@ name 'camera_base'
 using_library "frame_helper"
 using_library "opencv"
 import_types_from "base"
+import_types_from "frame_helper/Calibration.h"
 import_types_from "frame_helper/FrameHelperTypes.h"
 import_types_from "camera_interface/CamTypes.h"
 
@@ -31,6 +32,8 @@ task_context "Task" do
     	doc 'height of the camera frame'
     property('fps', 'int',10).
     	doc 'frames per second'
+    property('grab_mode', 'camera/GrabMode', :Continuously).
+    	doc 'grab mode (Stop, SingleFrame, MultiFrame, Continuously)'
     property('frame_buffer_size', 'int',10).
     	doc 'size of the frame buffer'
     property('clear_buffer_if_frame_drop', 'bool',false).
@@ -46,6 +49,8 @@ task_context "Task" do
     	doc 'start of region readout, in pixels; top edge.'
     property('trigger_mode', 'string','fixed').
     	doc 'trigger mode of the camera, allowed values: freerun, fixed, sync_in1, none'
+    property('channel_data_depth', 'int',8).
+        doc 'bit depth per channel'
     property('exposure', 'int',5000).
     	doc 'exposure value if exposure mode is not auto'
     property('exposure_mode', 'string','auto').
@@ -54,6 +59,10 @@ task_context "Task" do
     	doc 'gain mode'
     property('gain', 'int',0).
     	doc 'gain value'
+    property('gamma', 'bool',true).
+        doc 'turns gamma on or off'
+    property('acquisition_frame_count', 'int', 200).
+        doc 'count of frames if grab mode is MultiFrame'
     property('binning_x', 'int',1).
     	doc 'horizontal binning. 1=no binning.'
     property('binning_y', 'int',1).
@@ -76,6 +85,10 @@ task_context "Task" do
     	doc 'External trigger event, allowed values:  EdgeRising, EdgeFalling, EdgeAny, LevelHigh, LevelLow, none'
     property('package_size', 'int',0).
     	doc 'In Bytes. Size of image data packet. This size includes the GVSP, UDP, and IP headers. (0 == max possible)'
+    property('sync_out1_mode','string', 'FrameTrigger').
+    	doc 'sync out1 mode (GPO, AcquisitionTriggerReady, FrameTriggerReady, FrameTrigger, Exposing, FrameReadout, Acquiring, SyncIn1, SyncIn2, Strobe1)'
+    property('sync_out2_mode','string', 'FrameTrigger').
+    	doc 'sync out2 mode (GPO, AcquisitionTriggerReady, FrameTriggerReady, FrameTrigger, Exposing, FrameReadout, Acquiring, SyncIn1, SyncIn2, Strobe1)'
 
     #########################################################
     #################output properties#######################
@@ -84,7 +97,7 @@ task_context "Task" do
     property("undistort","bool",false).
         doc 'true => undistort the image before it is writen to the output port'
 
-    property("calibration_parameters","frame_helper/CalibrationParameters").
+    property("calibration_parameters","frame_helper/CameraCalibration").
         doc 'parameter for undistort'
 
     property("output_format", "/base/samples/frame/frame_mode_t", :MODE_UNDEFINED).
