@@ -241,10 +241,13 @@ void Task::configureCamera()
     }
 
     //setting FrameRate
-    if(cam_interface->isAttribAvail(double_attrib::FrameRate))
-        cam_interface->setAttrib(camera::double_attrib::FrameRate,_fps);
-    else
-        RTT::log(RTT::Info) << "FrameRate is not supported by the camera" << RTT::endlog();
+    if(_trigger_mode.value() == "fixed")
+    {
+        if (cam_interface->isAttribAvail(double_attrib::FrameRate))
+            cam_interface->setAttrib(camera::double_attrib::FrameRate,_fps);
+        else
+            RTT::log(RTT::Info) << "FrameRate is not supported by the camera" << RTT::endlog();
+    }
 
     //setting Region
     if(cam_interface->isAttribAvail(int_attrib::RegionX))
