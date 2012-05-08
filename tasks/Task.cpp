@@ -80,13 +80,14 @@ bool Task::startHook()
     try 
     {
         RTT::log(RTT::Info) << "configure camera:" << RTT::endlog(); 
-        configureCamera();
+        if (!configureCamera())
+            return false;
 
         //check if the camera is initialized
         if(cam_interface == NULL)
         {
             RTT::log(RTT::Error) << "Camera Driver Error: No camera interface was initialized" << RTT::endlog();
-            fatal(NO_CAMERA_INTERFACE);
+            report(NO_CAMERA_INTERFACE);
             return false;
         }
 
@@ -97,7 +98,7 @@ bool Task::startHook()
     catch(std::runtime_error e)
     {
         RTT::log(RTT::Error) << "failed to start camera: " << e.what() << RTT::endlog();
-        error(CANNOT_START_GRABBING);
+        report(CANNOT_START_GRABBING);
         return false;
     }
     
@@ -115,7 +116,7 @@ bool Task::startHook()
         catch(std::runtime_error e)
         {
             RTT::log(RTT::Error) << "failed to get file descriptor: " << e.what() << RTT::endlog();
-            error(CONFIGURE_ERROR);
+            report(CONFIGURE_ERROR);
             return false;
         }
     }
@@ -162,7 +163,7 @@ void Task::updateHook()
                 {
                     RTT::log(RTT::Error) << "processing error: " << e.what() << RTT::endlog();
                     RTT::log(RTT::Error) << "Have you specified camera_format and output_format right?" << RTT::endlog();
-                    error(PROCESSING_ERROR);
+                    report(PROCESSING_ERROR);
                     return;
                 }
                 output_frame.reset(frame_ptr);
@@ -217,7 +218,7 @@ void Task::cleanupHook()
     }
 }
 
-void Task::configureCamera()
+bool Task::configureCamera()
 {
     //sets binning to 1 otherwise high resolution can not be set
     if(cam_interface->isAttribAvail(int_attrib::BinningX))
@@ -236,8 +237,8 @@ void Task::configureCamera()
     catch(std::runtime_error e)
     {
         RTT::log(RTT::Error) << "failed to configure camera: " << e.what() << RTT::endlog();
-        error(CONFIGURE_ERROR);
-        return;
+        report(CONFIGURE_ERROR);
+        return false;
     }
 
     //setting FrameRate
@@ -354,8 +355,8 @@ void Task::configureCamera()
     else
     {
         RTT::log(RTT::Error) << "Whitebalance mode "+ _whitebalance_mode.value() + " is not supported!" << RTT::endlog();
-        error(UNKOWN_PARAMETER);
-        return;
+        report(UNKOWN_PARAMETER);
+        return false;
     }
 
     //setting _exposure_mode
@@ -387,8 +388,8 @@ void Task::configureCamera()
     else
     {
         RTT::log(RTT::Error) << "Exposure mode "+ _exposure_mode.value() + " is not supported!" << RTT::endlog();
-        error(UNKOWN_PARAMETER);
-        return;
+        report(UNKOWN_PARAMETER);
+        return false;
     }
 
     //setting _trigger_mode
@@ -420,8 +421,8 @@ void Task::configureCamera()
     else
     {
         RTT::log(RTT::Error) << "Trigger mode "+ _trigger_mode.value() + " is not supported!" + " is not supported!" << RTT::endlog();
-        error(UNKOWN_PARAMETER);
-        return;
+        report(UNKOWN_PARAMETER);
+        return false;
     }
 
     //setting _frame_start_trigger_event
@@ -467,8 +468,8 @@ void Task::configureCamera()
     else
     {
         RTT::log(RTT::Error) << "Frame start trigger event "+ _frame_start_trigger_event.value() + " is not supported!" << RTT::endlog();
-        error(UNKOWN_PARAMETER);
-        return;
+        report(UNKOWN_PARAMETER);
+        return false;
     }
 
     //setting _sync_out1_mode
@@ -545,8 +546,8 @@ void Task::configureCamera()
     else
     {
         RTT::log(RTT::Error) << "SyncOut1Mode "+ _frame_start_trigger_event.value() + " is not supported!" << RTT::endlog();
-        error(UNKOWN_PARAMETER);
-        return;
+        report(UNKOWN_PARAMETER);
+        return false;
     }
 
     //setting _sync_out2_mode
@@ -623,8 +624,8 @@ void Task::configureCamera()
     else
     {
         RTT::log(RTT::Error) << "SyncOut2Mode "+ _frame_start_trigger_event.value() + " is not supported!" << RTT::endlog();
-        error(UNKOWN_PARAMETER);
-        return;
+        report(UNKOWN_PARAMETER);
+        return false;
     }
 
 
@@ -637,6 +638,8 @@ void Task::configureCamera()
         "; exposure=" << _exposure << 
         "; Whitebalance mode=" << _whitebalance_mode << 
         RTT::endlog();
+
+    return true;
 }
 
 void Task::setExtraAttributes(Frame *frame_ptr)

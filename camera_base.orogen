@@ -124,8 +124,8 @@ task_context "Task" do
     ##########################states###########################
     ###########################################################
 
-    error_states :NO_CAMERA,:CONFIGURE_ERROR, :CANNOT_START_GRABBING, :UNKOWN_PARAMETER, :UNSUPPORTED_PARAMETER,:PROCESSING_ERROR
-    fatal_states :NO_CAMERA_INTERFACE
+    reports :NO_CAMERA,:CONFIGURE_ERROR, :CANNOT_START_GRABBING, :UNKOWN_PARAMETER, :UNSUPPORTED_PARAMETER,:PROCESSING_ERROR
+    reports :NO_CAMERA_INTERFACE
 
     ###########################################################
     ###########methods to configure the camera#################
