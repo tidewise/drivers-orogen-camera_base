@@ -12,4 +12,5 @@
   <export>
     <cpp cflags="" lflags="" />
   </export>
+  <tags>stable</tags>
 </package>
