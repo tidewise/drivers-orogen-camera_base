@@ -93,7 +93,11 @@ bool Task::startHook()
 
         RTT::log(RTT::Info) << cam_interface->doDiagnose() << RTT::endlog();
 
-        cam_interface->grab(_grab_mode,_frame_buffer_size); 
+        if(!cam_interface->grab(_grab_mode,_frame_buffer_size))
+	{
+            RTT::log(RTT::Error) << "Camera Driver Error: Could not start grabbing" << RTT::endlog();	    
+	    return false;
+	}
     }
     catch(std::runtime_error e)
     {
