@@ -54,6 +54,11 @@ namespace camera_base {
          */
         virtual void onRetrieveNewFrame(base::samples::frame::Frame & frame);
 
+        /** Reads the frame into camera_frame. \returns true if successful. */
+        virtual bool getFrame();
+        /** Processes a frame an puts it into output_frame. */
+        virtual bool processImage();
+
     protected:
 
       camera::CamInterface* cam_interface;			                //handle to the camera

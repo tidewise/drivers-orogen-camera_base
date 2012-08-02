@@ -127,51 +127,68 @@ bool Task::startHook()
     return true;
 }
 
+bool Task::processImage() {
+    Frame *frame_ptr = output_frame.write_access();
+    try 
+    {
+        frame_helper.convert(*camera_frame,*frame_ptr,_offset_x.value(),
+                _offset_y.value(),_resize_algorithm.value(),_undistort.value());
+    }
+    catch(std::runtime_error e)
+    {
+        RTT::log(RTT::Error) << "processing error: " << e.what() << RTT::endlog();
+        RTT::log(RTT::Error) << "Have you specified camera_format and output_format right?" << RTT::endlog();
+        report(PROCESSING_ERROR);
+        return false;
+    }
+    output_frame.reset(frame_ptr);
+    return true;
+}
+
+bool Task::getFrame() {
+    Frame *frame_ptr = camera_frame.write_access();
+
+    try
+    {
+        cam_interface->retrieveFrame(*frame_ptr);
+    }
+    catch(std::runtime_error e)
+    { 
+        RTT::log(RTT::Warning) << "failed to retrieve frame: " << e.what() << RTT::endlog();
+        if(_clear_buffer_if_frame_drop)
+            cam_interface->skipFrames();
+    }
+
+    if (frame_ptr->getStatus() == STATUS_VALID)
+    {
+        valid_frames_count++;
+        //set extra attributes 
+        setExtraAttributes(frame_ptr);
+        camera_frame.reset(frame_ptr);
+        //callback on frame retrieve
+        onRetrieveNewFrame(*frame_ptr);
+        return true;
+
+    }
+    else
+    {
+        camera_frame.reset(frame_ptr);
+        invalid_frames_count++;
+        return false;
+    }
+
+}
+
 void Task::updateHook()
 {
     TaskBase::updateHook();
 
     if(cam_interface->isFrameAvailable())
-    {
-        Frame *frame_ptr = camera_frame.write_access();
-        try
-        {
-            cam_interface->retrieveFrame(*frame_ptr);
-        }
-        catch(std::runtime_error e)
-        { 
-            RTT::log(RTT::Warning) << "failed to retrieve frame: " << e.what() << RTT::endlog();
-            if(_clear_buffer_if_frame_drop)
-                cam_interface->skipFrames();
-        }
-
-        if (frame_ptr->getStatus() == STATUS_VALID)
-        {
-            valid_frames_count++;
-            //set extra attributes 
-            setExtraAttributes(frame_ptr);
-            camera_frame.reset(frame_ptr);
-            //callback on frame retrieve
-            onRetrieveNewFrame(*frame_ptr);
-
+        if (getFrame()) {
             //check if we have to process the frame before writing it to the port
-            if(process_image)
-            {
-                frame_ptr = output_frame.write_access();
-                try 
-                {
-                    frame_helper.convert(*camera_frame,*frame_ptr,_offset_x.value(),
-                            _offset_y.value(),_resize_algorithm.value(),_undistort.value());
-                }
-                catch(std::runtime_error e)
-                {
-                    RTT::log(RTT::Error) << "processing error: " << e.what() << RTT::endlog();
-                    RTT::log(RTT::Error) << "Have you specified camera_format and output_format right?" << RTT::endlog();
-                    report(PROCESSING_ERROR);
-                    return;
-                }
-                output_frame.reset(frame_ptr);
-                _frame.write(output_frame);
+            if(process_image) {
+                if (processImage())
+                    _frame.write(output_frame);
             }
             else
                 _frame.write(camera_frame);
@@ -179,12 +196,7 @@ void Task::updateHook()
             if(!_disable_frame_raw)
                 _frame_raw.write(camera_frame);
         }
-        else
-        {
-            camera_frame.reset(frame_ptr);
-            invalid_frames_count++;
-        }
-    }
+
     if (cam_interface->isFrameAvailable())
         this->getActivity()->trigger();
 }
