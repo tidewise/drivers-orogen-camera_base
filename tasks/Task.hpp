@@ -57,7 +57,7 @@ namespace camera_base {
         /** Reads the frame into camera_frame. \returns true if successful. */
         virtual bool getFrame();
         /** Processes a frame an puts it into output_frame. */
-        virtual bool processImage();
+        virtual void processImage();
 
     protected:
 

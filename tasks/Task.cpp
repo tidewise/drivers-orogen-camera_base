@@ -127,7 +127,7 @@ bool Task::startHook()
     return true;
 }
 
-bool Task::processImage() {
+void Task::processImage() {
     Frame *frame_ptr = output_frame.write_access();
     try 
     {
@@ -139,10 +139,8 @@ bool Task::processImage() {
         RTT::log(RTT::Error) << "processing error: " << e.what() << RTT::endlog();
         RTT::log(RTT::Error) << "Have you specified camera_format and output_format right?" << RTT::endlog();
         report(PROCESSING_ERROR);
-        return false;
     }
     output_frame.reset(frame_ptr);
-    return true;
 }
 
 bool Task::getFrame() {
@@ -153,10 +151,11 @@ bool Task::getFrame() {
         cam_interface->retrieveFrame(*frame_ptr);
     }
     catch(std::runtime_error e)
-    { 
+    {
         RTT::log(RTT::Warning) << "failed to retrieve frame: " << e.what() << RTT::endlog();
         if(_clear_buffer_if_frame_drop)
             cam_interface->skipFrames();
+        camera_frame.reset(frame_ptr);
     }
 
     if (frame_ptr->getStatus() == STATUS_VALID)
@@ -187,8 +186,8 @@ void Task::updateHook()
         if (getFrame()) {
             //check if we have to process the frame before writing it to the port
             if(process_image) {
-                if (processImage())
-                    _frame.write(output_frame);
+                processImage();
+                _frame.write(output_frame);
             }
             else
                 _frame.write(camera_frame);
