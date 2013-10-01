@@ -61,7 +61,14 @@ bool Task::startHook()
        _camera_format.value() != output_frame_mode)
     {
         if(_undistort.value())
-            frame_helper.setCalibrationParameter(_calibration_parameters);
+	{
+	    if( !_calibration_parameters.value().isValid() )
+	    {
+		RTT::log(RTT::Error) << "Camera Driver Error: Undistort true, but calibration not valid." << RTT::endlog();
+		return false;
+	    }
+            frame_helper.setCalibrationParameter(_calibration_parameters.value());
+	}
         process_image = true;
     }
     else
@@ -659,6 +666,13 @@ bool Task::configureCamera()
 
 void Task::setExtraAttributes(Frame *frame_ptr)
 {
+    if(_calibration_parameters.value().isValid())
+    {
+	// write the calibration parameters 
+	// as metadata into the frame
+	_calibration_parameters.value().toFrame( *frame_ptr );
+    }
+
     if(_log_interval_in_sec)
     {
         base::Time time = base::Time::now();

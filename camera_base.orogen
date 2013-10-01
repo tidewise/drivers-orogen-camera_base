@@ -99,7 +99,7 @@ task_context "Task" do
         doc 'true => undistort the image before it is writen to the output port'
 
     property("calibration_parameters","frame_helper/CameraCalibration").
-        doc 'parameter for undistort'
+        doc 'Calibration parameters for the camera, which are used to undistort and are added as attributes to the frames'
 
     property("output_format", "/base/samples/frame/frame_mode_t", :MODE_UNDEFINED).
        doc "The camera_format is converted into this format before it is written to the output port "
