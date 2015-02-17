@@ -31,7 +31,7 @@ task_context "Task" do
     	doc 'width of the camera frame'
     property('height', 'int',480).
     	doc 'height of the camera frame'
-    property('fps', 'int',10).
+    property('fps', 'double',10).
     	doc 'frames per second'
     property('grab_mode', 'camera/GrabMode', :Continuously).
     	doc 'grab mode (Stop, SingleFrame, MultiFrame, Continuously)'
