@@ -173,4 +173,38 @@ task_context "Task" do
       argument('type', '/camera/double_attrib/CamAttrib', 'type')
 end
 
+# Task to pre-process images before used by other components
+task_context "Preprocess" do
+    reports :PROCESSING_ERROR
+    needs_configuration
+    input_port('iframe', ro_ptr('base::samples::frame::Frame'))
+    output_port 'oframe', ro_ptr('base::samples::frame::Frame')
 
+    property("undistort","bool",false).
+        doc 'true => undistort the image before it is written to the output port'
+
+    property("calibration_parameters","frame_helper/CameraCalibration").
+        doc 'Calibration parameters for the camera, which are used to undistort and are added as attributes to the frames'
+
+    property("format", "/base/samples/frame/frame_mode_t", :MODE_UNDEFINED).
+       doc "The image is converted into this format before it is written to the output port "
+           "Set it to MODE_UNDEFINED if you want to disable the conversion."
+
+    property("resize_algorithm","/frame_helper/ResizeAlgorithm",:INTER_LINEAR).
+        doc "resize algorithm which is used to scale the frame before it is written to the output port. "
+            "allowed values are INTER_LINEAR, INTER_NEAREST, INTER_AREA, INTER_CUBIC, INTER_LANCZOS4, BAYER_RESIZE"
+
+    property("scale_x", "double", 1).
+       doc "scale factor for the x direction which is used to scale the image before it is written to the output_port. "
+
+    property("scale_y", "double" ,1).
+       doc "scale factor for the y direction which is used to scale the image before it is written to the output_port. "
+
+    property("offset_x",   "int", 0).
+       doc "the offset to be used on the left margin in case of scaling"
+
+    property("offset_y",   "int", 0).
+       doc "the offset to be used on the left margin in case of scaling"
+
+    port_driven 'iframe'
+end
