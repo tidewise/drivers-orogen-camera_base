@@ -206,5 +206,5 @@ task_context "Preprocess" do
     property("offset_y",   "int", 0).
        doc "the offset to be used on the left margin in case of scaling"
 
-    port_driven 'iframe'
+    port_driven
 end

@@ -44,13 +44,13 @@ void Preprocess::updateHook()
 {
     PreprocessBase::updateHook();
     RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> iframe;	
-    if(!_iframe.read(iframe) == RTT::NewData)
+    if(_iframe.read(iframe) != RTT::NewData)
         return;
 
     Frame *frame_ptr = oframe.write_access();
     frame_ptr->init(iframe->size.width*_scale_x-_offset_x,
-                    iframe->size.height*_scale_y-_offset_y,
-                    iframe->getDataDepth(),_format);
+            iframe->size.height*_scale_y-_offset_y,
+            iframe->getDataDepth(),_format);
     try
     {
         frame_helper.convert(*iframe,*frame_ptr,_offset_x.value(),
@@ -61,6 +61,7 @@ void Preprocess::updateHook()
         RTT::log(RTT::Error) << "processing error: " << e.what() << RTT::endlog();
         report(PROCESSING_ERROR);
     }
+
     oframe.reset(frame_ptr);
     _oframe.write(oframe);
 }
