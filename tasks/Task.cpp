@@ -136,10 +136,13 @@ bool Task::startHook()
 
 void Task::processImage() {
     Frame *frame_ptr = output_frame.write_access();
-    try 
+    try
     {
         frame_helper.convert(*camera_frame,*frame_ptr,_offset_x.value(),
                 _offset_y.value(),_resize_algorithm.value(),_undistort.value());
+        // write calibration values if the frame was not undistorted
+        if(_calibration_parameters.value().isValid() && !_undistort.value())
+            _calibration_parameters.value().toFrame(*frame_ptr );
     }
     catch(std::runtime_error e)
     {
@@ -666,10 +669,12 @@ bool Task::configureCamera()
 
 void Task::setExtraAttributes(Frame *frame_ptr)
 {
-    if(_calibration_parameters.value().isValid())
+    if(!process_image && _calibration_parameters.value().isValid())
     {
 	// write the calibration parameters 
-	// as metadata into the frame
+	// as metadata into the frame if the frame is not processed
+        // otherwise we have to write these values after the image
+        // was processed (resized, ...)
 	_calibration_parameters.value().toFrame( *frame_ptr );
     }
 
