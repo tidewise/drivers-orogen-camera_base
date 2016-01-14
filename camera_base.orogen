@@ -23,7 +23,7 @@ task_context "Task" do
     ###################camera properties#######################
     ###########################################################
 
-    property('camera_id', 'string','105984').
+    property('camera_id', 'string').
     	doc 'unique camerea id'
     property('camera_format', 'base/samples/frame/frame_mode_t', :MODE_BAYER).
     	doc 'output format of the camera --> not the output port! see below'
