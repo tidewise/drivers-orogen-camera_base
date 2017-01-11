@@ -78,6 +78,9 @@ namespace camera_base {
       float stat_valid_frame_rate;
       base::Time time_save;
 
+      virtual bool setExposure(int exposure);
+      virtual bool setExposure_mode(std::string const& value);
+
     public:
         Task(std::string const& name = "camera::Task");
         Task(std::string const& name, RTT::ExecutionEngine* engine);

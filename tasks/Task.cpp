@@ -876,3 +876,31 @@ void Task::onRetrieveNewFrame(base::samples::frame::Frame& frame)
 {
 
 }
+
+bool Task::setExposure(int exposure)
+{
+    cam_interface->setAttrib(enum_attrib::ExposureModeToManual);
+    _exposure_mode.set("manual");
+    cam_interface->setAttrib(int_attrib::ExposureValue,exposure);
+    return TaskBase::setExposure(exposure);
+}
+
+bool Task::setExposure_mode(std::string const& mode)
+{
+    if( mode == "auto" )
+    {
+        cam_interface->setAttrib(enum_attrib::ExposureModeToAuto);
+    }
+    else if( mode == "manual" )
+    {
+        cam_interface->setAttrib(enum_attrib::ExposureModeToManual);
+        int exposure = _exposure.get();
+        cam_interface->setAttrib(int_attrib::ExposureValue,exposure);
+    }
+    else
+    {
+        return false;
+    }
+
+    return TaskBase::setExposure_mode(mode);
+}
