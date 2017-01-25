@@ -291,6 +291,11 @@ bool Task::configureCamera()
         cam_interface->setAttrib(camera::int_attrib::BinningY,_binning_y);
     }
 
+    if (cam_interface->isAttribAvail(int_attrib::TargetGrayValue))
+    {
+        cam_interface->setAttrib(camera::int_attrib::TargetGrayValue, _target_gray_value);
+    }
+
     //setting ExposureValue
     if(cam_interface->isAttribAvail(int_attrib::ExposureValue))
         cam_interface->setAttrib(camera::int_attrib::ExposureValue,_exposure);
@@ -904,3 +909,14 @@ bool Task::setExposure_mode(std::string const& mode)
 
     return TaskBase::setExposure_mode(mode);
 }
+bool Task::setTarget_gray_value(boost::int32_t value)
+{
+    if (cam_interface->isAttribAvail(int_attrib::TargetGrayValue))
+    {
+        cam_interface->setAttrib(camera::int_attrib::TargetGrayValue, value);
+        return true;
+    }
+    else
+        return false;
+}
+
