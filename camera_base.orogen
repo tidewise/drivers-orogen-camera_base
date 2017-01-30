@@ -10,7 +10,7 @@ import_types_from "camera_interface/CamTypes.h"
 
 task_context "Task" do
     needs_configuration
-    
+
     ###########################################################
     ########################ports##############################
     ###########################################################
@@ -52,6 +52,8 @@ task_context "Task" do
     	doc 'trigger mode of the camera, allowed values: freerun, fixed, sync_in1, none'
     property('channel_data_depth', 'int',8).
         doc 'bit depth per channel'
+    property('target_gray_value', 'int',128).dynamic
+        doc 'target average gray value for the auto exposure and auto gain features'
     property('exposure', 'int',5000).dynamic
     	doc 'exposure value if exposure mode is not auto'
     property('exposure_mode', 'string','auto').dynamic

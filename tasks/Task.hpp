@@ -80,6 +80,7 @@ namespace camera_base {
 
       virtual bool setExposure(int exposure);
       virtual bool setExposure_mode(std::string const& value);
+      virtual bool setTarget_gray_value(boost::int32_t value);
 
     public:
         Task(std::string const& name = "camera::Task");
