@@ -296,49 +296,6 @@ bool Task::configureCamera()
         cam_interface->setAttrib(camera::int_attrib::TargetGrayValue, _target_gray_value);
     }
 
-    //setting ExposureValue
-    if(cam_interface->isAttribAvail(int_attrib::ExposureValue))
-        cam_interface->setAttrib(camera::int_attrib::ExposureValue,_exposure);
-    else
-        RTT::log(RTT::Info) << "ExposureValue is not supported by the camera" << RTT::endlog();
-
-   
-    //setting GainValue
-    if(cam_interface->isAttribAvail(int_attrib::GainValue))
-        cam_interface->setAttrib(camera::int_attrib::GainValue,_gain);
-    else
-        RTT::log(RTT::Info) << "GainValue is not supported by the camera" << RTT::endlog();
-
-    //setting WhitebalValueBlue
-    if(cam_interface->isAttribAvail(int_attrib::WhitebalValueBlue))
-        cam_interface->setAttrib(camera::int_attrib::WhitebalValueBlue,_whitebalance_blue);
-    else
-        RTT::log(RTT::Info) << "WhitebalValueBlue is not supported by the camera" << RTT::endlog();
-
-    //setting WhitebalValueRed
-    if(cam_interface->isAttribAvail(int_attrib::WhitebalValueRed))
-        cam_interface->setAttrib(camera::int_attrib::WhitebalValueRed,_whitebalance_red);
-    else
-        RTT::log(RTT::Info) << "WhitebalValueRed is not supported by the camera" << RTT::endlog();
-
-    //setting WhitebalAutoRate
-    if(cam_interface->isAttribAvail(int_attrib::WhitebalAutoRate))
-        cam_interface->setAttrib(camera::int_attrib::WhitebalAutoRate,_whitebalance_auto_rate);
-    else
-        RTT::log(RTT::Info) << "WhitebalAutoRate is not supported by the camera" << RTT::endlog();
-
-    //setting WhitebalAutoAdjustTol
-    if(cam_interface->isAttribAvail(int_attrib::WhitebalAutoAdjustTol))
-        cam_interface->setAttrib(camera::int_attrib::WhitebalAutoAdjustTol,_whitebalance_auto_threshold);
-    else
-        RTT::log(RTT::Info) << "WhitebalAutoAdjustTol is not supported by the camera" << RTT::endlog();
-    
-    //setting AcquisitionFrameCount
-    if(cam_interface->isAttribAvail(int_attrib::AcquisitionFrameCount))
-      cam_interface->setAttrib(int_attrib::AcquisitionFrameCount, _acquisition_frame_count);
-    else
-      RTT::log(RTT::Info) << "AcquisitionFrameCount is not supported by the camera" << RTT::endlog();
-
     //setting gamma mode
     if(_gamma.get())
     {
@@ -657,6 +614,50 @@ bool Task::configureCamera()
         report(UNKOWN_PARAMETER);
         return false;
     }
+
+    //setting ExposureValue
+    if(cam_interface->isAttribAvail(int_attrib::ExposureValue))
+        cam_interface->setAttrib(camera::int_attrib::ExposureValue,_exposure);
+    else
+        RTT::log(RTT::Info) << "ExposureValue is not supported by the camera" << RTT::endlog();
+
+   
+    //setting GainValue
+    if(cam_interface->isAttribAvail(int_attrib::GainValue))
+        cam_interface->setAttrib(camera::int_attrib::GainValue,_gain);
+    else
+        RTT::log(RTT::Info) << "GainValue is not supported by the camera" << RTT::endlog();
+
+    //setting WhitebalValueBlue
+    if(cam_interface->isAttribAvail(int_attrib::WhitebalValueBlue))
+        cam_interface->setAttrib(camera::int_attrib::WhitebalValueBlue,_whitebalance_blue);
+    else
+        RTT::log(RTT::Info) << "WhitebalValueBlue is not supported by the camera" << RTT::endlog();
+
+    //setting WhitebalValueRed
+    if(cam_interface->isAttribAvail(int_attrib::WhitebalValueRed))
+        cam_interface->setAttrib(camera::int_attrib::WhitebalValueRed,_whitebalance_red);
+    else
+        RTT::log(RTT::Info) << "WhitebalValueRed is not supported by the camera" << RTT::endlog();
+
+    //setting WhitebalAutoRate
+    if(cam_interface->isAttribAvail(int_attrib::WhitebalAutoRate))
+        cam_interface->setAttrib(camera::int_attrib::WhitebalAutoRate,_whitebalance_auto_rate);
+    else
+        RTT::log(RTT::Info) << "WhitebalAutoRate is not supported by the camera" << RTT::endlog();
+
+    //setting WhitebalAutoAdjustTol
+    if(cam_interface->isAttribAvail(int_attrib::WhitebalAutoAdjustTol))
+        cam_interface->setAttrib(camera::int_attrib::WhitebalAutoAdjustTol,_whitebalance_auto_threshold);
+    else
+        RTT::log(RTT::Info) << "WhitebalAutoAdjustTol is not supported by the camera" << RTT::endlog();
+    
+    //setting AcquisitionFrameCount
+    if(cam_interface->isAttribAvail(int_attrib::AcquisitionFrameCount))
+      cam_interface->setAttrib(int_attrib::AcquisitionFrameCount, _acquisition_frame_count);
+    else
+      RTT::log(RTT::Info) << "AcquisitionFrameCount is not supported by the camera" << RTT::endlog();
+
 
 
     RTT::log(RTT::Info) << "camera configuration: width="<<_width <<
