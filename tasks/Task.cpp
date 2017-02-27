@@ -312,8 +312,8 @@ bool Task::configureCamera()
             RTT::log(RTT::Info) << "GammaToOff is not supported by the camera" << RTT::endlog();
       
     }
-    
-	//setting gain mode
+   
+    //setting gain mode
     if(_gain_mode_auto.value() == true)
     {
         if(cam_interface->isAttribAvail(enum_attrib::GainModeToAuto))
@@ -329,7 +329,24 @@ bool Task::configureCamera()
             RTT::log(RTT::Info) << "GainModeToManual is not supported by the camera" << RTT::endlog();
       
     }
-    
+
+    //setting Whitebalance to on/off
+    if(_whitebalance_power.get())
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::WhitebalToOn))
+            cam_interface->setAttrib(enum_attrib::WhitebalToOn);
+        else
+            RTT::log(RTT::Info) << "WhitebalToOn is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::WhitebalToOff))
+            cam_interface->setAttrib(enum_attrib::WhitebalToOff);
+        else
+            RTT::log(RTT::Info) << "WhitebalToOff is not supported by the camera" << RTT::endlog();
+      
+    }
+
     //setting _whitebalance_mode
     if(_whitebalance_mode.value() == "manual")
     {
@@ -363,6 +380,22 @@ bool Task::configureCamera()
         return false;
     }
 
+    //setting exposure on/off
+    if(_exposure_power.get())
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::ExposureToOn))
+            cam_interface->setAttrib(enum_attrib::ExposureToOn);
+        else
+            RTT::log(RTT::Info) << "ExposureToOn is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::ExposureToOff))
+            cam_interface->setAttrib(enum_attrib::ExposureToOff);
+        else
+            RTT::log(RTT::Info) << "ExposureToOff is not supported by the camera" << RTT::endlog();
+    }
+
     //setting _exposure_mode
     if(_exposure_mode.value() == "auto")
     {
@@ -392,6 +425,82 @@ bool Task::configureCamera()
     else
     {
         RTT::log(RTT::Error) << "Exposure mode "+ _exposure_mode.value() + " is not supported!" << RTT::endlog();
+        report(UNKOWN_PARAMETER);
+        return false;
+    }
+
+    //setting saturation on/off
+    if(_saturation_power.get())
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::SaturationToOn))
+            cam_interface->setAttrib(enum_attrib::SaturationToOn);
+        else
+            RTT::log(RTT::Info) << "SaturationToOn is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::SaturationToOff))
+            cam_interface->setAttrib(enum_attrib::SaturationToOff);
+        else
+            RTT::log(RTT::Info) << "SaturationToOff is not supported by the camera" << RTT::endlog();
+    }
+
+    //setting saturation mode
+    if(_saturation_mode.value() == "auto")
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::SaturationModeToAuto))
+            cam_interface->setAttrib(enum_attrib::SaturationModeToAuto);
+        else
+            RTT::log(RTT::Info) << "SaturationModeToAuto is not supported by the camera" << RTT::endlog();
+    }
+    else if(_saturation_mode.value() == "manual")
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::SaturationModeToManual))
+            cam_interface->setAttrib(enum_attrib::SaturationModeToManual);
+        else
+            RTT::log(RTT::Info) << "SaturationModeToManual is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "Saturation mode "+ _saturation_mode.value() + " is not supported!" << RTT::endlog();
+        report(UNKOWN_PARAMETER);
+        return false;
+    }
+
+    //setting sharpness on/off
+    if(_sharpness_power.get())
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::SharpnessToOn))
+            cam_interface->setAttrib(enum_attrib::SharpnessToOn);
+        else
+            RTT::log(RTT::Info) << "SharpnessToOn is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::SharpnessToOff))
+            cam_interface->setAttrib(enum_attrib::SharpnessToOff);
+        else
+            RTT::log(RTT::Info) << "SharpnessToOff is not supported by the camera" << RTT::endlog();
+    }
+
+    //setting sharpness mode
+    if(_sharpness_mode.value() == "auto")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SharpnessModeToAuto))
+            cam_interface->setAttrib(camera::enum_attrib::SharpnessModeToAuto);
+        else
+            RTT::log(RTT::Info) << "SharpnessModeToAuto is not supported by the camera" << RTT::endlog();
+    }
+    else if(_sharpness_mode.value() =="manual")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::SharpnessModeToManual))
+            cam_interface->setAttrib(camera::enum_attrib::SharpnessModeToManual);
+        else
+            RTT::log(RTT::Info) << "SharpnessModeToManual is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "Sharpness mode "+ _sharpness_mode.value() + " is not supported!" << RTT::endlog();
         report(UNKOWN_PARAMETER);
         return false;
     }
@@ -666,6 +775,18 @@ bool Task::configureCamera()
         cam_interface->setAttrib(camera::int_attrib::GainValue,_gain);
     else
         RTT::log(RTT::Info) << "GainValue is not supported by the camera" << RTT::endlog();
+
+    //setting SaturationValue
+    if(cam_interface->isAttribAvail(int_attrib::SaturationValue))
+        cam_interface->setAttrib(camera::int_attrib::SaturationValue,_saturation);
+    else
+        RTT::log(RTT::Info) << "SaturationValue is not supported by the camera" << RTT::endlog();
+
+    //setting SharpnessValue
+    if(cam_interface->isAttribAvail(int_attrib::SharpnessValue))
+        cam_interface->setAttrib(camera::int_attrib::SharpnessValue,_sharpness);
+    else
+        RTT::log(RTT::Info) << "SharpnessValue is not supported by the camera" << RTT::endlog();
 
     //setting ShutterValue
     if(cam_interface->isAttribAvail(int_attrib::ShutterValue))
