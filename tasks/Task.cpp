@@ -313,6 +313,23 @@ bool Task::configureCamera()
       
     }
     
+	//setting gain mode
+    if(_gain_mode_auto.value() == true)
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::GainModeToAuto))
+            cam_interface->setAttrib(enum_attrib::GainModeToAuto);
+        else
+            RTT::log(RTT::Info) << "GainModeToAuto is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::GainModeToManual))
+            cam_interface->setAttrib(enum_attrib::GainModeToManual);
+        else
+            RTT::log(RTT::Info) << "GainModeToManual is not supported by the camera" << RTT::endlog();
+      
+    }
+    
     //setting _whitebalance_mode
     if(_whitebalance_mode.value() == "manual")
     {
