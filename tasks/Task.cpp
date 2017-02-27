@@ -396,6 +396,28 @@ bool Task::configureCamera()
         return false;
     }
 
+    //setting shutter mode
+    if(_shutter_mode.value() == "auto")
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::ShutterModeToAuto))
+            cam_interface->setAttrib(enum_attrib::ShutterModeToAuto);
+        else
+            RTT::log(RTT::Info) << "ShutterModeToAuto is not supported by the camera" << RTT::endlog();
+    }
+    else if(_shutter_mode.value() == "manual")
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::ShutterModeToManual))
+            cam_interface->setAttrib(enum_attrib::ShutterModeToManual);
+        else
+            RTT::log(RTT::Info) << "ShutterModeToManual is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "Shutter mode "+ _shutter_mode.value() + " is not supported!" << RTT::endlog();
+        report(UNKOWN_PARAMETER);
+        return false;
+    }
+
     //setting _trigger_mode
     if(_trigger_mode.value() == "freerun")
     {
@@ -644,6 +666,12 @@ bool Task::configureCamera()
         cam_interface->setAttrib(camera::int_attrib::GainValue,_gain);
     else
         RTT::log(RTT::Info) << "GainValue is not supported by the camera" << RTT::endlog();
+
+    //setting ShutterValue
+    if(cam_interface->isAttribAvail(int_attrib::ShutterValue))
+        cam_interface->setAttrib(camera::int_attrib::ShutterValue,_shutter_time);
+    else
+        RTT::log(RTT::Info) << "ShutterValue is not supported by the camera" << RTT::endlog();
 
     //setting WhitebalValueBlue
     if(cam_interface->isAttribAvail(int_attrib::WhitebalValueBlue))

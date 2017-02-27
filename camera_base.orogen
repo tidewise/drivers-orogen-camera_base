@@ -74,6 +74,10 @@ task_context "Task" do
     	doc 'opening mode (Master, Monitor, MasterMulticast)'
     property('synchronize_time_interval', 'int',0).
     	doc 'time interval in micro seconds which is used to synchronize camera time with system time. 0 == no synchronization'
+	property('shutter_time', 'int',300).dynamic
+    	doc 'shutter time if shutter mode is not auto'
+    property('shutter_mode', 'string','auto').dynamic
+    	doc 'shutter mode (auto, manual)'
     property('whitebalance_mode', 'string','auto').
     	doc 'whitebalance mode (auto, manual, auto_once, none)'
     property('whitebalance_blue', 'int',100).
