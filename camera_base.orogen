@@ -54,6 +54,8 @@ task_context "Task" do
         doc 'bit depth per channel'
     property('target_gray_value', 'int',128).dynamic
         doc 'target average gray value for the auto exposure and auto gain features'
+    property('exposure_power', 'bool',true).
+    	doc 'turns exposure on or off'
     property('exposure', 'int',5000).dynamic
     	doc 'exposure value if exposure mode is not auto'
     property('exposure_mode', 'string','auto').dynamic
@@ -74,6 +76,24 @@ task_context "Task" do
     	doc 'opening mode (Master, Monitor, MasterMulticast)'
     property('synchronize_time_interval', 'int',0).
     	doc 'time interval in micro seconds which is used to synchronize camera time with system time. 0 == no synchronization'
+    property('saturation_power', 'bool',true).
+    	doc 'turns saturation on or off'
+    property('saturation', 'int',300).dynamic
+    	doc 'saturation if saturation mode is not auto'
+    property('saturation_mode', 'string','auto').dynamic
+    	doc 'saturation mode (auto, manual)'
+    property('sharpness_power', 'bool',true).
+    	doc 'turns sharpness on or off'
+    property('sharpness', 'int',300).dynamic
+    	doc 'sharpness if sharpness mode is not auto'
+    property('sharpness_mode', 'string','auto').dynamic
+    	doc 'sharpness mode (auto, manual)'
+    property('shutter_time', 'int',300).dynamic
+    	doc 'shutter time if shutter mode is not auto'
+    property('shutter_mode', 'string','auto').dynamic
+    	doc 'shutter mode (auto, manual)'
+    property('whitebalance_power', 'bool',true).
+    	doc 'turns whitebalance on or off'
     property('whitebalance_mode', 'string','auto').
     	doc 'whitebalance mode (auto, manual, auto_once, none)'
     property('whitebalance_blue', 'int',100).
