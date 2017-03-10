@@ -245,6 +245,105 @@ void Task::cleanupHook()
 
 bool Task::configureCamera()
 {
+    //setting Whitebalance to on/off
+    if(_whitebalance_power.get())
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::WhitebalToOn))
+            cam_interface->setAttrib(enum_attrib::WhitebalToOn);
+        else
+            RTT::log(RTT::Info) << "WhitebalToOn is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::WhitebalToOff))
+            cam_interface->setAttrib(enum_attrib::WhitebalToOff);
+        else
+            RTT::log(RTT::Info) << "WhitebalToOff is not supported by the camera" << RTT::endlog();
+      
+    }
+
+    //setting _whitebalance_mode
+    if(_whitebalance_mode.value() == "manual")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::WhitebalModeToManual))
+            cam_interface->setAttrib(camera::enum_attrib::WhitebalModeToManual);
+        else
+            RTT::log(RTT::Info) << "WhitebalModeToManual is not supported by the camera" << RTT::endlog();
+    }
+    else if (_whitebalance_mode.value() == "auto")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::WhitebalModeToAuto))
+            cam_interface->setAttrib(camera::enum_attrib::WhitebalModeToAuto);
+        else
+            RTT::log(RTT::Info) << "WhitebalModeToAuto is not supported by the camera" << RTT::endlog();
+    }
+    else if (_whitebalance_mode.value() == "auto_once")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::WhitebalModeToAutoOnce))
+            cam_interface->setAttrib(camera::enum_attrib::WhitebalModeToAutoOnce);
+        else
+            RTT::log(RTT::Info) << "WhitebalModeToAutoOnce is not supported by the camera" << RTT::endlog();
+    }
+    else if(_whitebalance_mode.value() == "none")
+    {
+        //do nothing
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "Whitebalance mode "+ _whitebalance_mode.value() + " is not supported!" << RTT::endlog();
+        report(UNKOWN_PARAMETER);
+        return false;
+    }
+
+   //setting exposure on/off
+    if(_exposure_power.get())
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::ExposureToOn))
+            cam_interface->setAttrib(enum_attrib::ExposureToOn);
+        else
+            RTT::log(RTT::Info) << "ExposureToOn is not supported by the camera" << RTT::endlog();
+    }
+    else
+    {
+        if(cam_interface->isAttribAvail(enum_attrib::ExposureToOff))
+            cam_interface->setAttrib(enum_attrib::ExposureToOff);
+        else
+            RTT::log(RTT::Info) << "ExposureToOff is not supported by the camera" << RTT::endlog();
+    }
+
+    //setting _exposure_mode
+    if(_exposure_mode.value() == "auto")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::ExposureModeToAuto))
+            cam_interface->setAttrib(camera::enum_attrib::ExposureModeToAuto);
+        else
+            RTT::log(RTT::Info) << "ExposureModeToAuto is not supported by the camera" << RTT::endlog();
+    }
+    else if(_exposure_mode.value() =="manual")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::ExposureModeToManual))
+            cam_interface->setAttrib(camera::enum_attrib::ExposureModeToManual);
+        else
+            RTT::log(RTT::Info) << "ExposureModeToManual is not supported by the camera" << RTT::endlog();
+    }
+    else if (_exposure_mode.value() =="external")
+    {
+        if(cam_interface->isAttribAvail(camera::enum_attrib::ExposureModeToExternal))
+            cam_interface->setAttrib(camera::enum_attrib::ExposureModeToExternal);
+        else
+            RTT::log(RTT::Info) << "ExposureModeToExternal is not supported by the camera" << RTT::endlog();
+    }
+    else if(_exposure_mode.value() == "none")
+    {
+        //do nothing
+    }
+    else
+    {
+        RTT::log(RTT::Error) << "Exposure mode "+ _exposure_mode.value() + " is not supported!" << RTT::endlog();
+        report(UNKOWN_PARAMETER);
+        return false;
+    }
+  
     //sets binning to 1 otherwise high resolution can not be set
     if(cam_interface->isAttribAvail(int_attrib::BinningX))
     {
@@ -312,7 +411,7 @@ bool Task::configureCamera()
             RTT::log(RTT::Info) << "GammaToOff is not supported by the camera" << RTT::endlog();
       
     }
-   
+  
     //setting gain mode
     if(_gain_mode_auto.value() == true)
     {
@@ -327,106 +426,6 @@ bool Task::configureCamera()
             cam_interface->setAttrib(enum_attrib::GainModeToManual);
         else
             RTT::log(RTT::Info) << "GainModeToManual is not supported by the camera" << RTT::endlog();
-      
-    }
-
-    //setting Whitebalance to on/off
-    if(_whitebalance_power.get())
-    {
-        if(cam_interface->isAttribAvail(enum_attrib::WhitebalToOn))
-            cam_interface->setAttrib(enum_attrib::WhitebalToOn);
-        else
-            RTT::log(RTT::Info) << "WhitebalToOn is not supported by the camera" << RTT::endlog();
-    }
-    else
-    {
-        if(cam_interface->isAttribAvail(enum_attrib::WhitebalToOff))
-            cam_interface->setAttrib(enum_attrib::WhitebalToOff);
-        else
-            RTT::log(RTT::Info) << "WhitebalToOff is not supported by the camera" << RTT::endlog();
-      
-    }
-
-    //setting _whitebalance_mode
-    if(_whitebalance_mode.value() == "manual")
-    {
-        if(cam_interface->isAttribAvail(camera::enum_attrib::WhitebalModeToManual))
-            cam_interface->setAttrib(camera::enum_attrib::WhitebalModeToManual);
-        else
-            RTT::log(RTT::Info) << "WhitebalModeToManual is not supported by the camera" << RTT::endlog();
-    }
-    else if (_whitebalance_mode.value() == "auto")
-    {
-        if(cam_interface->isAttribAvail(camera::enum_attrib::WhitebalModeToAuto))
-            cam_interface->setAttrib(camera::enum_attrib::WhitebalModeToAuto);
-        else
-            RTT::log(RTT::Info) << "WhitebalModeToAuto is not supported by the camera" << RTT::endlog();
-    }
-    else if (_whitebalance_mode.value() == "auto_once")
-    {
-        if(cam_interface->isAttribAvail(camera::enum_attrib::WhitebalModeToAutoOnce))
-            cam_interface->setAttrib(camera::enum_attrib::WhitebalModeToAutoOnce);
-        else
-            RTT::log(RTT::Info) << "WhitebalModeToAutoOnce is not supported by the camera" << RTT::endlog();
-    }
-    else if(_whitebalance_mode.value() == "none")
-    {
-        //do nothing
-    }
-    else
-    {
-        RTT::log(RTT::Error) << "Whitebalance mode "+ _whitebalance_mode.value() + " is not supported!" << RTT::endlog();
-        report(UNKOWN_PARAMETER);
-        return false;
-    }
-
-    //setting exposure on/off
-    if(_exposure_power.get())
-    {
-        if(cam_interface->isAttribAvail(enum_attrib::ExposureToOn))
-            cam_interface->setAttrib(enum_attrib::ExposureToOn);
-        else
-            RTT::log(RTT::Info) << "ExposureToOn is not supported by the camera" << RTT::endlog();
-    }
-    else
-    {
-        if(cam_interface->isAttribAvail(enum_attrib::ExposureToOff))
-            cam_interface->setAttrib(enum_attrib::ExposureToOff);
-        else
-            RTT::log(RTT::Info) << "ExposureToOff is not supported by the camera" << RTT::endlog();
-    }
-
-    //setting _exposure_mode
-    if(_exposure_mode.value() == "auto")
-    {
-        if(cam_interface->isAttribAvail(camera::enum_attrib::ExposureModeToAuto))
-            cam_interface->setAttrib(camera::enum_attrib::ExposureModeToAuto);
-        else
-            RTT::log(RTT::Info) << "ExposureModeToAuto is not supported by the camera" << RTT::endlog();
-    }
-    else if(_exposure_mode.value() =="manual")
-    {
-        if(cam_interface->isAttribAvail(camera::enum_attrib::ExposureModeToManual))
-            cam_interface->setAttrib(camera::enum_attrib::ExposureModeToManual);
-        else
-            RTT::log(RTT::Info) << "ExposureModeToManual is not supported by the camera" << RTT::endlog();
-    }
-    else if (_exposure_mode.value() =="external")
-    {
-        if(cam_interface->isAttribAvail(camera::enum_attrib::ExposureModeToExternal))
-            cam_interface->setAttrib(camera::enum_attrib::ExposureModeToExternal);
-        else
-            RTT::log(RTT::Info) << "ExposureModeToExternal is not supported by the camera" << RTT::endlog();
-    }
-    else if(_exposure_mode.value() == "none")
-    {
-        //do nothing
-    }
-    else
-    {
-        RTT::log(RTT::Error) << "Exposure mode "+ _exposure_mode.value() + " is not supported!" << RTT::endlog();
-        report(UNKOWN_PARAMETER);
-        return false;
     }
 
     //setting saturation on/off
