@@ -1050,6 +1050,10 @@ void Task::onRetrieveNewFrame(base::samples::frame::Frame& frame)
 
 bool Task::setExposure(int exposure)
 {
+    //do nothing of given non-positive value
+    if(exposure <= 0)
+        return false;
+
     cam_interface->setAttrib(enum_attrib::ExposureModeToManual);
     _exposure_mode.set("manual");
     cam_interface->setAttrib(int_attrib::ExposureValue,exposure);
