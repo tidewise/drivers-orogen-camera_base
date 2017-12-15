@@ -48,7 +48,7 @@ task_context "Task" do
     	doc 'start of region readout, in pixels; left edge.'
     property('region_y', 'int',0).
     	doc 'start of region readout, in pixels; top edge.'
-    property('trigger_mode', 'string','fixed').
+    property('trigger_mode', '/std/string','fixed').
     	doc 'trigger mode of the camera, allowed values: freerun, fixed, sync_in1, none'
     property('channel_data_depth', 'int',8).
         doc 'bit depth per channel'
@@ -94,7 +94,7 @@ task_context "Task" do
     	doc 'shutter mode (auto, manual)'
     property('whitebalance_power', 'bool',true).
     	doc 'turns whitebalance on or off'
-    property('whitebalance_mode', 'string','auto').
+    property('whitebalance_mode', '/std/string','auto').
     	doc 'whitebalance mode (auto, manual, auto_once, none)'
     property('whitebalance_blue', 'int',100).
     	doc 'Blue gain expressed as a percentage of the camera default setting.'

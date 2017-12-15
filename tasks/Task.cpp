@@ -825,14 +825,15 @@ bool Task::configureCamera()
 
 
 
-    RTT::log(RTT::Info) << "camera configuration: width="<<_width <<
-        "; height=" << _height << 
-        "; region_x=" << _region_x << 
-        "; region_y=" << _region_y << 
-        "; Trigger mode=" << _trigger_mode << 
-        "; fps=" << _fps << 
-        "; exposure=" << _exposure << 
-        "; Whitebalance mode=" << _whitebalance_mode << 
+    RTT::log(RTT::Info) << "camera configuration: " <<
+        "width="                << _width.value() <<
+        "; height="             << _height.value() << 
+        "; region_x="           << _region_x.value() << 
+        "; region_y="           << _region_y.value() << 
+        "; Trigger mode="       << _trigger_mode.value() << 
+        "; fps="                << _fps.value() << 
+        "; exposure="           << _exposure.value() << 
+        "; Whitebalance mode="  << _whitebalance_mode.value() << 
         RTT::endlog();
 
     return true;
