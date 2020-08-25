@@ -2,7 +2,7 @@ name 'camera_base'
 
 using_library "frame_helper"
 using_library "camera_interface"
-using_library "opencv"
+
 import_types_from "base"
 import_types_from "frame_helper/Calibration.h"
 import_types_from "frame_helper/FrameHelperTypes.h"
