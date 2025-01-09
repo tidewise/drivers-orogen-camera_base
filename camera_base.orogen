@@ -8,7 +8,14 @@ import_types_from "frame_helper/Calibration.h"
 import_types_from "frame_helper/FrameHelperTypes.h"
 import_types_from "camera_interface/CamTypes.h"
 
-task_context "Task" do
+task_context "Base" do
+    # If threads == 1, OpenCV will disable threading optimizations and run all it's
+    # functions sequentially. Passing threads < 0 will reset threads number to
+    # system default
+    property "opencv_num_threads", "int", -1
+end
+
+task_context "Task", subclasses: "Base" do
     needs_configuration
 
     ###########################################################
@@ -196,7 +203,7 @@ task_context "Task" do
 end
 
 # Task to pre-process images before used by other components
-task_context "Preprocess" do
+task_context "Preprocess", subclasses: "Base" do
     reports :PROCESSING_ERROR
     needs_configuration
     input_port('iframe', ro_ptr('base::samples::frame::Frame'))
