@@ -59,7 +59,9 @@ void Preprocess::updateHook()
     catch(std::runtime_error e)
     {
         RTT::log(RTT::Error) << "processing error: " << e.what() << RTT::endlog();
-        report(PROCESSING_ERROR);
+        if (state() != PROCESSING_ERROR) {
+            state(PROCESSING_ERROR);
+        }
     }
 
     oframe.reset(frame_ptr);
