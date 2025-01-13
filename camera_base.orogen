@@ -196,8 +196,7 @@ task_context "Task" do
 end
 
 # Task to pre-process images before used by other components
-task_context "Preprocess" do
-    reports :PROCESSING_ERROR
+task_context "Preprocess", subclasses: "Base" do
     needs_configuration
     input_port('iframe', ro_ptr('base::samples::frame::Frame'))
     output_port 'oframe', ro_ptr('base::samples::frame::Frame')
@@ -227,6 +226,8 @@ task_context "Preprocess" do
 
     property("offset_y",   "int", 0).
        doc "the offset to be used on the left margin in case of scaling"
+    
+    runtime_states :PROCESSING_ERROR
 
     port_driven
 end
