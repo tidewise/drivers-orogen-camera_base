@@ -58,7 +58,8 @@ void Preprocess::updateHook()
             _offset_x.value(),
             _offset_y.value(),
             _resize_algorithm.value(),
-            _undistort.value());
+            _undistort.value(),
+            _undistort_algorithm.value());
     }
     catch (std::runtime_error e) {
         RTT::log(RTT::Error) << "processing error: " << e.what() << RTT::endlog();

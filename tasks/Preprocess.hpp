@@ -5,6 +5,7 @@
 
 #include "camera_base/PreprocessBase.hpp"
 #include "frame_helper/FrameHelper.h"
+#include "frame_helper/FrameHelperTypes.h"
 
 namespace camera_base {
 
@@ -36,14 +37,16 @@ namespace camera_base {
     public:
         /** TaskContext constructor for Preprocess
          * \param name Name of the task. This name needs to be unique to make it
-         * identifiable via nameservices. \param initial_state The initial TaskState of
+         * identifiable via nameservices.
+         * \param initial_state The initial TaskState of
          * the TaskContext. Default is Stopped state.
          */
         Preprocess(std::string const& name = "camera_base::Preprocess");
 
         /** TaskContext constructor for Preprocess
          * \param name Name of the task. This name needs to be unique to make it
-         * identifiable for nameservices. \param engine The RTT Execution engine to be
+         * identifiable for nameservices.
+         * \param engine The RTT Execution engine to be
          * used for this task, which serialises the execution of all commands, programs,
          * state machines and incoming events for a task.
          *

@@ -208,6 +208,10 @@ task_context "Preprocess", subclasses: "Base" do
     input_port('iframe', ro_ptr('base::samples::frame::Frame'))
     output_port 'oframe', ro_ptr('base::samples::frame::Frame')
 
+    property("undistort_algorithm","/frame_helper/UndistortAlgorithm",:UNDISTORT_LINEAR).
+    doc "interpolation algorithm which is used to undistort the frame before it is written to the output port. "
+        "allowed values are INTER_LINEAR, INTER_NEAREST, INTER_AREA, INTER_CUBIC, INTER_LANCZOS4"
+
     property("undistort","bool",false).
         doc 'true => undistort the image before it is written to the output port'
 
