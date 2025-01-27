@@ -8,11 +8,14 @@
 
 namespace camera_base {
 
-    /*! \class Preprocess 
-     * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
-     * Essential interfaces are operations, data flow ports and properties. These interfaces have been defined using the oroGen specification.
-     * In order to modify the interfaces you should (re)use oroGen and rely on the associated workflow.
-     * 
+    /*! \class Preprocess
+     * \brief The task context provides and requires services. It uses an ExecutionEngine
+     to perform its functions.
+     * Essential interfaces are operations, data flow ports and properties. These
+     interfaces have been defined using the oroGen specification.
+     * In order to modify the interfaces you should (re)use oroGen and rely on the
+     associated workflow.
+     *
      * \details
      * The name of a TaskContext is primarily defined via:
      \verbatim
@@ -20,32 +23,36 @@ namespace camera_base {
          task('custom_task_name','camera_base::Preprocess')
      end
      \endverbatim
-     *  It can be dynamically adapted when the deployment is called with a prefix argument. 
+     *  It can be dynamically adapted when the deployment is called with a prefix
+     argument.
      */
-    class Preprocess : public PreprocessBase
-    {
-	friend class PreprocessBase;
+    class Preprocess : public PreprocessBase {
+        friend class PreprocessBase;
+
     protected:
-      RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> oframe;	
-      frame_helper::FrameHelper frame_helper;   //helper for image processing
+        RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> oframe;
+        frame_helper::FrameHelper frame_helper; // helper for image processing
 
     public:
         /** TaskContext constructor for Preprocess
-         * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
-         * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
+         * \param name Name of the task. This name needs to be unique to make it
+         * identifiable via nameservices. \param initial_state The initial TaskState of
+         * the TaskContext. Default is Stopped state.
          */
         Preprocess(std::string const& name = "camera_base::Preprocess");
 
-        /** TaskContext constructor for Preprocess 
-         * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices. 
-         * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task. 
-         * 
+        /** TaskContext constructor for Preprocess
+         * \param name Name of the task. This name needs to be unique to make it
+         * identifiable for nameservices. \param engine The RTT Execution engine to be
+         * used for this task, which serialises the execution of all commands, programs,
+         * state machines and incoming events for a task.
+         *
          */
         Preprocess(std::string const& name, RTT::ExecutionEngine* engine);
 
         /** Default deconstructor of Preprocess
          */
-	~Preprocess();
+        ~Preprocess();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the
@@ -76,7 +83,7 @@ namespace camera_base {
          *
          * The error(), exception() and fatal() calls, when called in this hook,
          * allow to get into the associated RunTimeError, Exception and
-         * FatalError states. 
+         * FatalError states.
          *
          * In the first case, updateHook() is still called, and recover() allows
          * you to go back into the Running state.  In the second case, the
@@ -108,4 +115,3 @@ namespace camera_base {
 }
 
 #endif
-
