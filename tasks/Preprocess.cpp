@@ -61,7 +61,7 @@ void Preprocess::updateHook()
             _undistort.value(),
             _undistort_algorithm.value());
     }
-    catch (std::runtime_error e) {
+    catch (std::runtime_error const& e) {
         RTT::log(RTT::Error) << "processing error: " << e.what() << RTT::endlog();
         if (state() != PROCESSING_ERROR) {
             state(PROCESSING_ERROR);
